@@ -1,0 +1,1 @@
+# take_send_message_template
