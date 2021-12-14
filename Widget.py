@@ -1,4 +1,5 @@
 import uuid
+from datetime import datetime
 import Commands as CMD
 import Console
 
@@ -13,6 +14,7 @@ class Widget:
         self.TemplateName = templateName
         self.TemplateNamespace = templateNamespace
         self.AlternativeAccount = ''
+        self.TipName = ''
 
     def Guid(self):
         return str(uuid.uuid4())
@@ -86,7 +88,7 @@ class Widget:
             if(tip):
                 storage = await self.GetStorageContact()
                 storage = storage.json()
-                if('false' in storage['resource']['actions']['receive']):
+                if(storage['resource']['actions'] and 'false' in storage['resource']['actions']['receive']):
                     return
 
             Console.Header('Send Message Template')
@@ -120,6 +122,7 @@ class Widget:
             }
 
             await CMD.sendMessage(data, self.AuthorizationKey)
+
             Console.Success('Success Send Message Template')
         except:
             Console.Error('Error Send Message Template')
@@ -195,6 +198,12 @@ class Widget:
                     'data': contentArray
                 }
 
+            action = str(datetime.now()) + " | " + self.Guid() + " | " + \
+                tip['name'] + " | " + self.AlternativeAccount + \
+                " | " + self.TemplateName
+
+            await self.EventTrack("Dica menu detalhes do envio", action)
+
             await CMD.send({
                 "id": self.Guid(),
                 "method": "set",
@@ -206,3 +215,29 @@ class Widget:
             Console.Success('Success Set storage contact')
         except:
             Console.Error('Error Set storage contact')
+
+    async def EventTrack(self, category, action):
+        try:
+            Console.Header('Set Event Track ' + self.PhoneNumber)
+
+            if(self.AlternativeAccount):
+                self.AlternativeAccount = self.AlternativeAccount
+            else:
+                self.AlternativeAccount = self.PhoneNumber+"@wa.gw.msging.net"
+
+            resp = await CMD.send({
+                "id": self.Guid(),
+                "to": "postmaster@analytics.msging.net",
+                "method": "set",
+                "type": "application/vnd.iris.eventTrack+json",
+                "uri": "/event-track",
+                "resource": {
+                    "category": category,
+                    "action": action
+                }
+            }, self.AuthorizationKey)
+
+            Console.Success('Success Set Event Track')
+            return resp
+        except:
+            Console.Error('Error Set Event Track')
