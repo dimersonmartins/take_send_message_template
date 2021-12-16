@@ -169,6 +169,9 @@ class Widget:
             else:
                 self.AlternativeAccount = self.PhoneNumber+"@wa.gw.msging.net"
 
+            tipId = self.Guid()
+            tip['id'] = tipId
+
             storage = await self.GetStorageContact()
             storage = storage.json()
             resource = {}
@@ -198,7 +201,7 @@ class Widget:
                     'data': contentArray
                 }
 
-            action = str(datetime.now()) + " | " + self.Guid() + " | " + \
+            action = str(datetime.now()) + " | " + tipId + " | " + \
                 tip['name'] + " | " + self.AlternativeAccount + \
                 " | " + self.TemplateName
 
