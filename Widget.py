@@ -88,11 +88,16 @@ class Widget:
             if(tip):
                 storage = await self.GetStorageContact()
                 storage = storage.json()
-                if(storage['resource']['actions'] and 'false' in storage['resource']['actions']['receive']):
+                if(storage['resource']['actions'] and 'false' in storage['resource']['actions']['receive'] or 'none' in storage['resource']['actions']['receive']):
                     return
 
             Console.Header('Send Message Template')
             await self.GetAlternativeAccount()
+
+            if(not tip):
+                action = str(datetime.now()) + " | " + \
+                    self.AlternativeAccount + " | " + self.TemplateName
+                await self.EventTrack("Comeco do dia menu detalhes do envio", action)
 
             _parameters = []
             for content in parameters:
@@ -127,8 +132,14 @@ class Widget:
         except:
             Console.Error('Error Send Message Template')
 
-    async def SendMessage(self, message):
+    async def SendMessage(self, message, tip=False):
         try:
+            if(tip):
+                storage = await self.GetStorageContact()
+                storage = storage.json()
+                if(storage['resource']['actions'] and 'false' in storage['resource']['actions']['receive'] or 'none' in storage['resource']['actions']['receive']):
+                    return
+
             Console.Header('Send Message')
             await self.GetAlternativeAccount()
             await CMD.sendMessage({
