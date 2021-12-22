@@ -85,14 +85,16 @@ class Widget:
 
     async def SendMessageTemplate(self, parameters=[], tip=False):
         try:
-            if(tip):
-                storage = await self.GetStorageContact()
-                storage = storage.json()
-                if(storage['resource']['actions'] and 'false' in storage['resource']['actions']['receive'] or 'none' in storage['resource']['actions']['receive']):
-                    return
 
             Console.Header('Send Message Template')
             await self.GetAlternativeAccount()
+
+            storage = await self.GetStorageContact()
+            storage = storage.json()
+
+            if(tip):
+                if(storage['resource']['actions'] and 'false' in storage['resource']['actions']['receive'] or 'none' in storage['resource']['actions']['receive']):
+                    return
 
             if(not tip):
                 action = str(datetime.now()) + " | " + \
@@ -134,6 +136,8 @@ class Widget:
 
     async def SendMessage(self, message, tip=False):
         try:
+            await self.GetAlternativeAccount()
+
             if(tip):
                 storage = await self.GetStorageContact()
                 storage = storage.json()
@@ -141,13 +145,16 @@ class Widget:
                     return
 
             Console.Header('Send Message')
-            await self.GetAlternativeAccount()
+
             await CMD.sendMessage({
                 "id": self.Guid(),
                 "to": self.AlternativeAccount,
                 "type": "text/plain",
                 "content": message
             }, self.AuthorizationKey)
+
+            action = str(datetime.now()) + " | " + self.AlternativeAccount
+            await self.EventTrack("Final do dia me ajude a enviar dicas detalhes envio", action)
 
             Console.Success('Success Send Message Template')
         except:
