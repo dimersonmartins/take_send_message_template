@@ -5,7 +5,7 @@ import Console
 
 
 class Widget:
-    def __init__(self, authorizationKey, phoneNumber, channel='', stateid='', blockId='', templateName='', templateNamespace=''):
+    def __init__(self, authorizationKey, phoneNumber, channel='', stateid='', blockId='', templateName='', templateNamespace='', contactName=''):
         self.AuthorizationKey = authorizationKey
         self.PhoneNumber = phoneNumber
         self.Channel = channel
@@ -15,6 +15,7 @@ class Widget:
         self.TemplateNamespace = templateNamespace
         self.AlternativeAccount = ''
         self.TipName = ''
+        self.ContactName = contactName
 
     def Guid(self):
         return str(uuid.uuid4())
@@ -134,7 +135,7 @@ class Widget:
         except:
             Console.Error('Error Send Message Template')
 
-    async def SendMessage(self, message, tip=False):
+    async def SendMessage(self, tip=False):
         try:
             await self.GetAlternativeAccount()
 
@@ -145,6 +146,12 @@ class Widget:
                     return
 
             Console.Header('Send Message')
+
+            message = "Olá, *"+self.ContactName+"!*\n\n"
+            message += "Parabéns!!! \n\n"
+            message += "Me ajude a enviar dicas cada vez melhores!\n\n"
+            message += "Se você pudesse dar uma dica para si mesmo durante o dia de hoje, o que gostaria de falar?\n\n"
+            message += "*(escreva em apenas uma mensagem)*"
 
             await CMD.sendMessage({
                 "id": self.Guid(),
